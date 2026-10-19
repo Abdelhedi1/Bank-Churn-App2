@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Data</h2>
+
+<div class="card">
+  <h3>Load data</h3>
+  <p class="muted">CSV with columns: credit_score, country, gender, age, tenure, balance, products_number, credit_card, active_member, estimated_salary, and a <code>churn</code> (or <code>exited</code>) target.</p>
+  <div class="row">
+    <input type="file" id="csv-file" accept=".csv">
+    <button class="btn" id="btn-upload">Upload CSV</button>
+    <button class="btn ghost" id="btn-sample">Load sample data</button>
+  </div>
+  <div id="msg" class="msg"></div>
+</div>
+
+<div id="data-view" hidden>
+  <div class="metrics" id="data-metrics"></div>
+  <div class="card"><h3>First 10 rows</h3><div class="table-wrap" id="head-table"></div></div>
+  <details class="card"><summary>Column information</summary><div class="table-wrap" id="info-table"></div></details>
+  <div class="grid two">
+    <div class="card"><h3>Churn distribution</h3><div id="chart-pie"></div></div>
+    <div class="card"><h3>Correlation matrix</h3><div id="chart-corr"></div></div>
+  </div>
+</div>
+{% endblock %}

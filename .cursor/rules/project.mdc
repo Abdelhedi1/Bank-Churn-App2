@@ -1,0 +1,21 @@
+---
+description: Project rules for Cursor — points to the shared AI context.
+alwaysApply: true
+---
+
+# Cursor Project Rules
+
+The single source of truth for this project is `AI_CONTEXT.md` at the repo root.
+Read it and follow it for the project summary, tech stack, folder structure, and
+all coding conventions.
+
+Key rules (full list in `AI_CONTEXT.md`):
+
+- Match existing code style and `.editorconfig`; don't reformat unrelated code.
+- Never hardcode secrets — use `.env` (gitignored). See `.env.example`.
+- Don't add dependencies without the team agreeing; note any new dep in the PR.
+- New features ship with at least one test.
+- Update `docs/CHANGELOG.md` when behavior changes.
+- If a requirement is unclear, leave a `TODO:` comment instead of guessing.
+
+If this file and `AI_CONTEXT.md` disagree, `AI_CONTEXT.md` wins.

@@ -1,0 +1,59 @@
+# Continuous Integration — runs automatically on every push and pull request.
+#
+# Philosophy for this course: KEEP IT LIGHT. CI should catch obvious breakage
+# and remind you about docs — not become a second job. It auto-detects your
+# stack, so it works whether your team uses Node, Python, or neither yet.
+#
+# As your project grows, add real lint/test commands in the marked spots.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history, so the docs check can diff commits
+
+      # --- Node.js projects (only runs if package.json exists) ----------------
+      - name: Set up Node
+        if: ${{ hashFiles('package.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Node deps
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm install
+
+      - name: Run Node tests
+        # Runs `npm test` only if you've defined a "test" script.
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm test --if-present
+
+      # --- Python projects (only runs if requirements.txt exists) -------------
+      - name: Set up Python
+        if: ${{ hashFiles('requirements.txt') != '' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python deps
+        if: ${{ hashFiles('requirements.txt') != '' }}
+        run: pip install -r requirements.txt
+
+      - name: Run Python tests
+        # Won't fail the build if you have no tests yet.
+        if: ${{ hashFiles('requirements.txt') != '' }}
+        run: pip show pytest >/dev/null 2>&1 && pytest || echo "No pytest / no tests yet — skipping."
+
+      # --- Docs reminder (always runs, never fails the build) -----------------
+      - name: Docs reminder
+        run: bash scripts/check-docs.sh

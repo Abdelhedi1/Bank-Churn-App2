@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Customer Churn Prediction</h1>
+  <p>Predict which bank customers are likely to leave. Load your data, engineer features, train two models and score customers one by one or in batch.</p>
+  <a class="btn" href="{{ url_for('main.data_page') }}">Get started →</a>
+</section>
+
+<div class="grid two">
+  <div class="card">
+    <h3>Key features</h3>
+    <ul>
+      <li>Automatic data cleaning</li>
+      <li>Feature engineering (balance, activity, tenure, age)</li>
+      <li>Logistic Regression and LightGBM with SMOTE and 5-fold CV</li>
+      <li>Accuracy, Precision, Recall, F1, AUC, KS and ROC curves</li>
+      <li>Single-customer prediction and batch scoring (CSV)</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>How to use</h3>
+    <ol>
+      <li><a href="{{ url_for('main.data_page') }}">Data</a> — upload a CSV or load the sample</li>
+      <li><a href="{{ url_for('main.features_page') }}">Features</a> — generate features and split</li>
+      <li><a href="{{ url_for('main.training_page') }}">Training</a> — train and compare models</li>
+      <li><a href="{{ url_for('main.prediction_page') }}">Prediction</a> — score customers</li>
+    </ol>
+  </div>
+</div>
+{% endblock %}

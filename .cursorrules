@@ -1,0 +1,13 @@
+# Cursor Rules (legacy format — kept for older Cursor versions)
+#
+# The single source of truth is AI_CONTEXT.md at the repo root. Read it and
+# follow it. Newer Cursor versions use .cursor/rules/project.mdc instead.
+
+Follow AI_CONTEXT.md for project summary, tech stack, structure, and conventions.
+
+- Match existing code style and .editorconfig; don't reformat unrelated code.
+- Never hardcode secrets — use .env (gitignored).
+- Don't add dependencies without team agreement; note any new dep in the PR.
+- New features ship with at least one test.
+- Update docs/CHANGELOG.md when behavior changes.
+- If a requirement is unclear, leave a TODO: comment instead of guessing.

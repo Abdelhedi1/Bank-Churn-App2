@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Runs automatically before 'git push' (once hooks are enabled via scripts/setup.sh).
+# It only prints a friendly docs reminder and never blocks the push.
+exec "$(dirname "$0")/../scripts/check-docs.sh"

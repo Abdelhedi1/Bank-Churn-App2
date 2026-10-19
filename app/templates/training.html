@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Model training</h2>
+
+<div class="card">
+  <p>Both models use 5-fold stratified cross-validation and hyperparameter search (scored by ROC AUC). The best model by AUC is used for predictions.</p>
+  <div class="row">
+    <label><input type="checkbox" id="m-lr" checked> Logistic Regression</label>
+    <label><input type="checkbox" id="m-lgbm" checked> LightGBM</label>
+    <label><input type="checkbox" id="m-smote" checked> Use SMOTE</label>
+  </div>
+  <div class="row"><button class="btn" id="btn-train">Train models</button></div>
+  <div id="msg" class="msg"></div>
+</div>
+
+<div id="results" hidden>
+  <div class="card"><h3>Model comparison</h3><div class="table-wrap" id="cmp-table"></div><p class="muted" id="best-line"></p></div>
+  <div class="grid two">
+    <div class="card"><h3>ROC curves</h3><div id="chart-roc"></div></div>
+    <div class="card"><h3>Confusion matrices</h3><div id="cm-wrap" class="grid two"></div></div>
+  </div>
+</div>
+{% endblock %}
