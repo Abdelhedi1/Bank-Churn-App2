@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Churn Analytics · BankChurn AI{% endblock %}
+{% block head %}<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Churn Analytics</h1><p>How well the model performs, and the monthly KPI report.</p></div>
+<div id="an-empty" class="notice" hidden><span>No model has been trained yet. An administrator trains one on the Data &amp; Upload page.</span></div>
+<div id="an-body" hidden>
+  <section class="panel"><div class="panel-head"><div><h2>Model comparison</h2><p class="sub" id="an-sub"></p></div></div>
+    <div class="table-wrap" id="cmp-table"></div></section>
+  <div class="two">
+    <section class="panel"><h2>ROC curves</h2><div id="chart-roc" style="height:340px"></div></section>
+    <section class="panel"><h2>Confusion matrices</h2><div id="cm-wrap" class="two"></div></section>
+  </div>
+  <section class="panel"><h2>What drives churn</h2><p class="sub">Share of the best model's importance</p>
+    <div id="importance" class="reasons" style="margin-top:14px"></div></section>
+</div>
+{% if user['role'] in ('retention_manager', 'admin', 'executive') %}
+<section class="panel"><div class="panel-head"><div><h2>Monthly KPI report</h2><p class="sub">Scoring, alerts and retention activity for one month</p></div>
+  <div class="row"><label>Month<input type="month" id="rep-month"></label>
+  <a class="btn ghost" id="rep-dl" href="#">{% include "_i_dl.html" %}Download CSV</a></div></div>
+  <div id="rep-body" class="table-wrap"></div></section>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pages.js') }}"></script>{% endblock %}

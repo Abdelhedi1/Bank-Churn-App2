@@ -24,8 +24,8 @@ python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
-# 5. Data (not in git): copy "Bank Customer Churn Prediction.csv" into data/
-#    (or just upload any CSV from the Data page)
+# 5. Data: data/Bank Customer Churn Prediction.csv is included (8,000 customers);
+#    click "Load sample data" on the Data page, or upload any CSV
 
 # 6. Run
 python run.py                    # open http://127.0.0.1:5000
@@ -37,7 +37,7 @@ pytest
 ## Troubleshooting
 
 - **Problem:** "Sample file not found" on the Data page.
-  **Fix:** put `Bank Customer Churn Prediction.csv` in `data/`, or upload a CSV.
+  **Fix:** make sure `data/Bank Customer Churn Prediction.csv` exists, or upload a CSV.
 - **Problem:** Charts are empty.
   **Fix:** Plotly.js loads from a CDN — check your internet connection.
 - **Problem:** `lightgbm` fails to install on macOS.

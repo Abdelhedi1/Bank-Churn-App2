@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · BankChurn AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+{% include "_icons.html" %}
+<div class="login-wrap">
+  <div class="panel login">
+    <a class="brand" href="{{ url_for('auth.login') }}">
+      <svg class="icon"><use href="#i-bank"/></svg>
+      <span><b>BankChurn AI</b><small>Predict. Retain. Grow.</small></span>
+    </a>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Username<input type="text" name="username" autocomplete="username" required autofocus></label>
+      <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+      {% if error %}<div class="msg err" role="alert">{{ error }}</div>{% endif %}
+      <button class="btn block" type="submit">Sign in</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

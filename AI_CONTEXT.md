@@ -35,7 +35,7 @@
 - `app/routes.py` — Flask pages and `/api/*` JSON endpoints
 - `app/templates/` — Jinja pages (`base.html` + one per page)
 - `app/static/` — `css/style.css`, `js/app.js`
-- `data/` — put `Bank Customer Churn Prediction.csv` here (gitignored)
+- `data/` — `Bank Customer Churn Prediction.csv`: 8,000-customer sample of the public Churn_Modelling dataset (no names; the only CSV committed)
 - `models/` — saved trained model (gitignored)
 - `tests/` — pytest tests (synthetic data only)
 - `docs/` — architecture, ADRs, changelog, setup report
@@ -49,7 +49,7 @@
 - **Separation:** ML logic goes in `app/ml.py`; routes stay thin; no ML code in templates/JS.
 - **Dependencies:** do **not** add a library without the team agreeing first.
 - **Secrets:** never hardcode keys. Use `.env` (gitignored); see `.env.example`.
-- **Data:** never commit customer data or model files.
+- **Data:** never commit real customer data or model files; the only committed CSV is the anonymised public sample in `data/`.
 - **Tests:** new features come with at least one pytest test.
 - **Commits:** small, Conventional-Commit style (`feat:`, `fix:`, `docs:`); update `docs/CHANGELOG.md` when behavior changes.
 
@@ -57,7 +57,7 @@
 
 - Don't invent requirements — ask or leave a `TODO` with your name.
 - Don't delete or rewrite large sections you weren't asked to touch.
-- Don't commit generated files, `.venv/`, `models/`, CSV data or `.env`.
+- Don't commit generated files, `.venv/`, `models/`, other CSV data or `.env`.
 - Don't paste private customer data or credentials into AI chats.
 
 ## 6. Glossary / domain terms

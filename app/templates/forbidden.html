@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Not allowed · BankChurn AI{% endblock %}
+{% block content %}
+<div class="page-head"><h1>You can't open this page</h1>
+<p>{{ message or "Your role does not include access to this page. Ask an administrator if you need it." }}</p></div>
+<div><a class="btn" href="{{ url_for('web.dashboard') }}">Back to the dashboard</a></div>
+{% endblock %}

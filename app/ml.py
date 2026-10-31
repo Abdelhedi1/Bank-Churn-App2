@@ -30,10 +30,13 @@ from sklearn.preprocessing import StandardScaler
 warnings.filterwarnings("ignore")
 
 COUNTRIES = ["France", "Germany", "Spain"]
-BASE_COLUMNS = [
-    "credit_score", "age", "tenure", "balance", "products_number",
-    "credit_card", "active_member", "estimated_salary",
+# Columns every dataset must have; the rest are optional and their features are
+# only built when the column exists (so a reduced CSV still works).
+REQUIRED_COLUMNS = [
+    "credit_score", "country", "products_number", "credit_card", "active_member", "estimated_salary",
 ]
+OPTIONAL_COLUMNS = ["gender", "age", "tenure", "balance"]
+INPUT_COLUMNS = REQUIRED_COLUMNS + OPTIONAL_COLUMNS
 ID_COLUMNS = ["customer_id", "id", "client_id"]
 
 
@@ -80,28 +83,37 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def missing_columns(df: pd.DataFrame) -> list[str]:
-    needed = BASE_COLUMNS + ["gender", "country"]
-    return [c for c in needed if c not in df.columns]
+    return [c for c in REQUIRED_COLUMNS if c not in df.columns]
+
+
+def input_columns(df: pd.DataFrame) -> list[str]:
+    """Known input columns present in df (what the prediction form must ask for)."""
+    return [c for c in INPUT_COLUMNS if c in df.columns]
 
 
 # ------------------------------------------------------------- features
 def create_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
-    df["balance_salary_ratio"] = df["balance"] / (df["estimated_salary"] + 1)
+    has = set(df.columns)
     df["activity_score"] = df["products_number"] * df["active_member"]
-    df["tenure_risk"] = 1 / (df["tenure"] + 1)
-    df["age_risk"] = np.where((df["age"] < 30) | (df["age"] > 60), 1, 0)
-    df["low_balance"] = np.where(df["balance"] < 1000, 1, 0)
-    df["high_value"] = np.where((df["balance"] > 100000) & (df["products_number"] >= 2), 1, 0)
     df["credit_active"] = df["credit_card"] * df["active_member"]
+    if "balance" in has:
+        df["balance_salary_ratio"] = df["balance"] / (df["estimated_salary"] + 1)
+        df["low_balance"] = np.where(df["balance"] < 1000, 1, 0)
+        df["high_value"] = np.where((df["balance"] > 100000) & (df["products_number"] >= 2), 1, 0)
+    if "tenure" in has:
+        df["tenure_risk"] = 1 / (df["tenure"] + 1)
+    if "age" in has:
+        df["age_risk"] = np.where((df["age"] < 30) | (df["age"] > 60), 1, 0)
     return df
 
 
 def encode_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Gender -> 0/1, country -> one-hot with a fixed column set (train == serve)."""
+    """Gender -> 0/1 (if present), country -> one-hot with a fixed column set (train == serve)."""
     df = df.copy()
-    df["gender_encoded"] = (df["gender"].astype(str).str.strip().str.lower() == "male").astype(int)
-    df = df.drop(columns="gender")
+    if "gender" in df.columns:
+        df["gender_encoded"] = (df["gender"].astype(str).str.strip().str.lower() == "male").astype(int)
+        df = df.drop(columns="gender")
     country = df["country"].astype(str).str.strip().str.title()
     for c in COUNTRIES:
         df[f"country_{c}"] = (country == c).astype(int)
@@ -129,6 +141,7 @@ def prepare_training_data(df: pd.DataFrame, test_size: float = 0.2, seed: int = 
         "y_test": y_te.to_numpy(),
         "scaler": scaler,
         "feature_names": list(X.columns),
+        "input_columns": input_columns(df),
     }
 
 
@@ -205,10 +218,12 @@ def predict_frame(model, scaler, feature_names, raw: pd.DataFrame) -> pd.DataFra
 
 
 # ------------------------------------------------------------ persistence
-def save_artifacts(path: Path, model, scaler, feature_names, model_name: str) -> None:
+def save_artifacts(path: Path, model, scaler, feature_names, model_name: str, inputs: list[str],
+                   meta: dict | None = None) -> None:
     path.mkdir(parents=True, exist_ok=True)
     joblib.dump(
-        {"model": model, "scaler": scaler, "feature_names": feature_names, "model_name": model_name},
+        {"model": model, "scaler": scaler, "feature_names": feature_names,
+         "model_name": model_name, "input_columns": inputs, "meta": meta or {}},
         path / "best_model.joblib",
     )
 
@@ -216,3 +231,71 @@ def save_artifacts(path: Path, model, scaler, feature_names, model_name: str) ->
 def load_artifacts(path: Path) -> dict | None:
     f = path / "best_model.joblib"
     return joblib.load(f) if f.exists() else None
+
+
+# ----------------------------------------------------------- explanations
+FEATURE_LABELS = {
+    "credit_score": "Credit score", "age": "Age", "tenure": "Years as a customer",
+    "balance": "Account balance", "products_number": "Number of products",
+    "credit_card": "Has a credit card", "active_member": "Active member",
+    "estimated_salary": "Estimated salary", "activity_score": "Product activity",
+    "credit_active": "Active card use", "balance_salary_ratio": "Balance compared with salary",
+    "low_balance": "Very low balance", "high_value": "High-value profile",
+    "tenure_risk": "Short time as a customer", "age_risk": "Age bracket (under 30 or over 60)",
+    "gender_encoded": "Male customer", "country_France": "Lives in France",
+    "country_Germany": "Lives in Germany", "country_Spain": "Lives in Spain",
+}
+BINARY_FEATURES = {"credit_card", "active_member", "credit_active", "low_balance", "high_value",
+                   "age_risk", "gender_encoded", "country_France", "country_Germany", "country_Spain"}
+
+
+def feature_label(name: str) -> str:
+    return FEATURE_LABELS.get(name, name.replace("_", " ").capitalize())
+
+
+def _format_value(name: str, value: float) -> str:
+    if name in BINARY_FEATURES:
+        return "Yes" if value >= 0.5 else "No"
+    if abs(value) >= 1000:
+        return f"{value:,.0f}"
+    return f"{value:.0f}" if float(value).is_integer() else f"{value:.2f}"
+
+
+def _contributions(model, scaled: np.ndarray) -> np.ndarray:
+    """Per-feature push on the churn score (log-odds). Positive = raises risk."""
+    if hasattr(model, "booster_"):  # LightGBM computes exact tree contributions itself
+        return np.asarray(model.predict(scaled, pred_contrib=True))[:, :-1]
+    if hasattr(model, "coef_"):  # linear model: coefficient x scaled value
+        return scaled * model.coef_[0]
+    return np.zeros_like(scaled)
+
+
+def explain_frame(model, scaler, feature_names, raw: pd.DataFrame, top_n: int = 3) -> list[list[dict]]:
+    """Top factors behind each customer's score (REQ-04)."""
+    X = build_matrix(raw, feature_names)
+    contrib = _contributions(model, scaler.transform(X))
+    order = np.argsort(-np.abs(contrib), axis=1)[:, :top_n]
+    values = X.to_numpy()
+    out = []
+    for i in range(len(X)):
+        out.append([
+            {"feature": feature_names[j], "label": feature_label(feature_names[j]),
+             "value": _format_value(feature_names[j], float(values[i, j])),
+             "impact": round(float(contrib[i, j]), 3),
+             "direction": "raises" if contrib[i, j] > 0 else "lowers"}
+            for j in order[i]
+        ])
+    return out
+
+
+def feature_importance(model, feature_names) -> list[dict]:
+    """Global drivers of churn: each feature's share of the model's total importance."""
+    if hasattr(model, "booster_"):
+        raw = np.asarray(model.booster_.feature_importance(importance_type="gain"), dtype=float)
+    elif hasattr(model, "coef_"):
+        raw = np.abs(model.coef_[0])
+    else:
+        return []
+    total = raw.sum() or 1.0
+    ranked = sorted(zip(feature_names, raw / total), key=lambda t: -t[1])
+    return [{"feature": f, "label": feature_label(f), "share": round(float(v), 4)} for f, v in ranked]

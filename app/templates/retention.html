@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Retention Strategies · BankChurn AI{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Retention Strategies</h1><p>Alerts for high-risk customers, the actions your team has logged, and the playbook.</p></div>
+<div class="notice">{% include "_i_shield.html" %}<span>Offers are never sent automatically. This page only records what your team decides and does.</span></div>
+<div id="msg" class="msg"></div>
+<section class="panel"><div class="panel-head"><div><h2>Alerts</h2><p class="sub">Customers whose churn probability passed the alert threshold</p></div></div>
+  <div class="table-wrap"><table id="al-table"><thead><tr><th>Customer</th><th class="num">Probability</th><th>Assigned to</th><th>Raised</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div></section>
+<section class="panel"><div class="panel-head"><div><h2>Logged actions</h2><p class="sub">Most recent first</p></div></div>
+  <div class="table-wrap"><table id="ac-table"><thead><tr><th>Customer</th><th>Action</th><th>Notes</th><th>By</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div></section>
+{% if user['role'] in ('retention_manager', 'admin') %}
+<section class="panel"><h2>Export for the marketing campaign tool</h2><p class="sub">Download a CSV of a risk segment. The export is recorded in the audit log.</p>
+  <div class="filters" style="margin-top:14px">
+    <label>Risk level<select id="ex-tier"><option>High</option><option>Medium</option><option>Low</option></select></label>
+    <label>Products<select id="ex-products"><option value="">All</option><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+    <label>Country<select id="ex-country"><option value="">All</option><option>France</option><option>Germany</option><option>Spain</option></select></label>
+    <a class="btn" id="ex-go" href="#">{% include "_i_dl.html" %}Export segment</a></div></section>
+{% endif %}
+<section><h2 style="margin-bottom:12px;font-size:17px">Playbook</h2><div class="playbook">
+  <div class="panel"><span class="badge High">High risk</span><ul><li>Contact the customer within 7 days</li><li>Prepare a personalised offer (lower fees or a bonus) for approval</li><li>Log every contact here</li></ul></div>
+  <div class="panel"><span class="badge Medium">Medium risk</span><ul><li>Add to the next engagement campaign</li><li>Send an email or app notification about unused services</li></ul></div>
+  <div class="panel"><span class="badge Low">Low risk</span><ul><li>No action needed</li><li>Keep the usual engagement</li></ul></div></div></section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pages.js') }}"></script>{% endblock %}

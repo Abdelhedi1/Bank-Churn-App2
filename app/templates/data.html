@@ -1,25 +1,31 @@
 {% extends "base.html" %}
+{% block title %}Data & Upload · BankChurn AI{% endblock %}
+{% block head %}<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>{% endblock %}
 {% block content %}
-<h2>Data</h2>
-
-<div class="card">
-  <h3>Load data</h3>
-  <p class="muted">CSV with columns: credit_score, country, gender, age, tenure, balance, products_number, credit_card, active_member, estimated_salary, and a <code>churn</code> (or <code>exited</code>) target.</p>
-  <div class="row">
-    <input type="file" id="csv-file" accept=".csv">
-    <button class="btn" id="btn-upload">Upload CSV</button>
-    <button class="btn ghost" id="btn-sample">Load sample data</button>
-  </div>
-  <div id="msg" class="msg"></div>
+<div class="page-head"><h1>Data &amp; Upload</h1><p>Load customer data, prepare features and train the model. Training ends with a fresh scoring run.</p></div>
+<div id="msg" class="msg"></div>
+<div class="steps">
+  <section class="step"><span class="n">1</span><div class="panel"><h2>Load customer data</h2>
+    <p class="sub">Required columns: credit_score, country, products_number, credit_card, active_member, estimated_salary. Optional: gender, age, tenure, balance, customer_id, and churn (1 = left) for training.</p>
+    <div class="row" style="margin-top:14px"><input type="file" id="csv-file" accept=".csv"><button class="btn" id="btn-upload" type="button">Upload CSV</button>
+      <button class="btn ghost" id="btn-sample" type="button">Load sample data</button></div></div></section>
+  <section class="step"><span class="n">2</span><div class="panel"><h2>Generate features</h2>
+    <p class="sub">Builds risk features (balance vs salary, activity, tenure, age bracket) and an 80/20 train/test split. Features needing a missing column are skipped.</p>
+    <div class="row" style="margin-top:14px"><button class="btn" id="btn-features" type="button">Generate features</button></div>
+    <p id="feat-summary" class="muted" style="margin-top:10px"></p><div id="feat-list" class="tags"></div></div></section>
+  <section class="step"><span class="n">3</span><div class="panel"><h2>Train models</h2>
+    <p class="sub">Logistic Regression and LightGBM, 5-fold cross-validation. The best model by AUC is activated. Takes about two minutes.</p>
+    <div class="row" style="margin-top:14px"><label class="row"><input type="checkbox" id="m-lr" checked> Logistic Regression</label>
+      <label class="row"><input type="checkbox" id="m-lgbm" checked> LightGBM</label>
+      <label class="row"><input type="checkbox" id="m-smote" checked> Balance classes (SMOTE)</label></div>
+    <div class="row" style="margin-top:14px"><button class="btn" id="btn-train" type="button">Train models</button>
+      <a class="btn ghost" href="{{ url_for('web.analytics') }}">See results</a></div></div></section>
 </div>
-
 <div id="data-view" hidden>
-  <div class="metrics" id="data-metrics"></div>
-  <div class="card"><h3>First 10 rows</h3><div class="table-wrap" id="head-table"></div></div>
-  <details class="card"><summary>Column information</summary><div class="table-wrap" id="info-table"></div></details>
-  <div class="grid two">
-    <div class="card"><h3>Churn distribution</h3><div id="chart-pie"></div></div>
-    <div class="card"><h3>Correlation matrix</h3><div id="chart-corr"></div></div>
-  </div>
+  <div class="kpis" id="data-metrics"></div>
+  <section class="panel"><h2>First 10 rows</h2><div class="table-wrap" id="head-table" style="margin-top:12px"></div></section>
+  <div class="two"><section class="panel"><h2>Churn distribution</h2><div id="chart-pie" style="height:300px"></div></section>
+  <section class="panel"><h2>Correlation matrix</h2><div id="chart-corr" style="height:360px"></div></section></div>
 </div>
 {% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pages.js') }}"></script>{% endblock %}

@@ -31,5 +31,6 @@ just adds Claude-specific working notes.
 
 <!-- Anything Claude keeps getting wrong goes here. Add to it over the semester. -->
 
-- ML code lives in `app/ml.py`; keep `app/routes.py` thin.
-- Tests use synthetic data only; the real CSV is never committed.
+- ML code lives in `app/ml.py`; model lifecycle in `app/model_service.py` (Strategy). Keep route modules (`web.py`, `api.py`, `auth.py`) thin.
+- Tests use synthetic data (`tests/conftest.py`). `data/Bank Customer Churn Prediction.csv` is a synthetic demo dataset (no names), safe to commit.
+- Skills are in `.claude/skills/` (frontend-design, webapp-testing); MCP servers in `.mcp.json`. Never hardcode tokens.

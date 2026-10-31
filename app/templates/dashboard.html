@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · BankChurn AI{% endblock %}
+{% block head %}<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Bank Customer Churn Prediction</h1>
+  <p>Use machine learning to identify at-risk customers and take action before they leave.</p>
+</div>
+<div id="not-ready" class="notice" hidden><span id="not-ready-text"></span></div>
+
+<section class="kpis" aria-label="Key figures">
+  <div class="panel kpi"><span class="ico">{% include "_i_users.html" %}</span><div><div class="label">Total Customers</div><div class="value" id="k-total">–</div><div class="note" id="k-total-n"></div></div></div>
+  <div class="panel kpi"><span class="ico red">{% include "_i_warn.html" %}</span><div><div class="label">Predicted Churners</div><div class="value" id="k-high">–</div><div class="note" id="k-high-n"></div></div></div>
+  <div class="panel kpi"><span class="ico">{% include "_i_pct.html" %}</span><div><div class="label">Churn Rate</div><div class="value" id="k-churn">–</div><div class="note" id="k-churn-n">Customers who already left</div></div></div>
+  <div class="panel kpi"><span class="ico green">{% include "_i_shield.html" %}</span><div><div class="label">Retention Rate</div><div class="value" id="k-ret">–</div><div class="note" id="k-ret-n">Customers who stayed</div></div></div>
+</section>
+
+<div class="dash">
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>Churn by Segment</h2><p class="sub" id="seg-sub">Customers and churn rate per group</p></div>
+        <label style="min-width:170px">Group by
+          <select id="seg"><option value="products">Number of products</option><option value="country">Country</option>
+            <option value="age">Age band</option><option value="tenure">Years as a customer</option></select></label>
+      </div>
+      <div id="chart-trend" style="height:300px"></div>
+    </section>
+    <div class="pair">
+      <section class="panel"><h2>Customer Segments</h2><p class="sub">Active customers by risk level</p>
+        <div id="donut" class="donut-wrap" style="margin-top:16px"></div></section>
+      <section class="panel"><h2>Top Reasons for Churn</h2><p class="sub">What the model relies on most</p>
+        <div id="reasons" class="reasons" style="margin-top:16px"></div></section>
+    </div>
+  </div>
+  <div class="stack">
+    <section class="panel">
+      <h2>Predict a Customer</h2><p class="sub" style="margin-bottom:14px">Enter customer details to get a churn prediction</p>
+      {% with form_id = "quick-form" %}{% include "_customer_form.html" %}{% endwith %}
+      <button class="btn block" id="quick-go" type="button" style="margin-top:14px">{% include "_i_search.html" %}Predict Churn</button>
+      <div id="quick-msg" class="msg"></div>
+    </section>
+    <section id="quick-result" class="panel result" hidden></section>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pages.js') }}"></script>{% endblock %}

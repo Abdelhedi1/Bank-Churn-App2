@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Administration · BankChurn AI{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Administration</h1><p>Alert threshold, scoring runs, users and the audit log.</p></div>
+<div id="msg" class="msg"></div>
+<div class="two">
+  <section class="panel"><h2>Alert threshold</h2><p class="sub">Customers at or above this churn probability raise an alert at the next scoring run. The SRS does not fix a value, so agree it with stakeholders.</p>
+    <div class="row" style="margin-top:14px"><label>Threshold (%)<input type="number" id="thr" min="1" max="99" step="1"></label><button class="btn" id="thr-save" type="button" style="align-self:end">Save</button></div></section>
+  <section class="panel"><h2>Scoring</h2><p class="sub">The weekly run starts by itself while the server is running. You can also run it now.</p>
+    <div class="row" style="margin-top:14px"><button class="btn" id="score-go" type="button">Run scoring now</button></div></section>
+</div>
+<section class="panel"><h2>Recent scoring runs</h2><div class="table-wrap" style="margin-top:10px"><table id="jobs"><thead><tr><th>#</th><th>Started (UTC)</th><th>Trigger</th><th>Model</th><th class="num">Scored</th><th class="num">High risk</th><th class="num">Seconds</th><th>Status</th></tr></thead><tbody></tbody></table></div></section>
+<div class="two">
+  <section class="panel"><h2>Users</h2><div class="table-wrap" style="margin:10px 0"><table id="users"><thead><tr><th>User</th><th>Role</th><th>Branch</th><th></th></tr></thead><tbody></tbody></table></div>
+    <form id="user-form" class="form-grid"><label>Username<input type="text" name="username" required></label><label>Name<input type="text" name="name" required></label>
+      <label>Role<select name="role"><option value="rm">Relationship manager</option><option value="retention_manager">Retention manager</option><option value="executive">Executive</option><option value="admin">Administrator</option></select></label>
+      <label>Branch (for managers)<input type="text" name="branch" placeholder="France"></label>
+      <label>Password (10+ characters)<input type="password" name="password" minlength="10" required autocomplete="new-password"></label>
+      <button class="btn" type="submit" style="align-self:end">Add user</button></form></section>
+  <section class="panel"><h2>Audit log</h2><p class="sub">Every view of individual customer churn data, export and sign-in</p>
+    <div class="table-wrap" style="margin-top:10px;max-height:420px;overflow:auto"><table id="audit"><thead><tr><th>Time (UTC)</th><th>User</th><th>Action</th><th>Customer</th></tr></thead><tbody></tbody></table></div></section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pages.js') }}"></script>{% endblock %}

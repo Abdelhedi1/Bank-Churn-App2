@@ -1,41 +1,25 @@
 {% extends "base.html" %}
+{% block title %}Customer Prediction · BankChurn AI{% endblock %}
 {% block content %}
-<h2>Predictions</h2>
-<div id="msg" class="msg"></div>
-
-<div class="tabs">
-  <button class="tab active" data-tab="single">Single customer</button>
-  <button class="tab" data-tab="batch">Batch (CSV)</button>
+<div class="page-head"><h1>Customer Prediction</h1><p>Check one customer, or score a whole file of customers at once.</p></div>
+<div class="tabs" role="tablist">
+  <button class="tab active" data-tab="single" role="tab">Single customer</button>
+  {% if user['role'] != 'executive' %}<button class="tab" data-tab="batch" role="tab">Batch (CSV)</button>{% endif %}
 </div>
-
-<section id="tab-single" class="card">
-  <form id="form-single" class="form-grid">
-    <label>Credit score<input type="number" name="credit_score" min="300" max="850" value="650" required></label>
-    <label>Age<input type="number" name="age" min="18" max="100" value="38" required></label>
-    <label>Gender<select name="gender"><option>Male</option><option>Female</option></select></label>
-    <label>Country<select name="country"><option>France</option><option>Spain</option><option>Germany</option></select></label>
-    <label>Tenure (years)<input type="number" name="tenure" min="0" max="10" value="5" required></label>
-    <label>Balance<input type="number" name="balance" min="0" max="300000" step="1000" value="75000" required></label>
-    <label>Number of products<input type="number" name="products_number" min="1" max="4" value="2" required></label>
-    <label>Credit card<select name="credit_card"><option value="1">Yes</option><option value="0">No</option></select></label>
-    <label>Active member<select name="active_member"><option value="1">Yes</option><option value="0">No</option></select></label>
-    <label>Estimated salary<input type="number" name="estimated_salary" min="0" max="250000" step="5000" value="100000" required></label>
-    <div class="form-actions"><button class="btn" type="submit">Predict churn</button></div>
-  </form>
-  <div id="single-result" class="grid two" hidden>
-    <div id="chart-gauge"></div>
-    <div id="verdict" class="verdict"></div>
-  </div>
-</section>
-
-<section id="tab-batch" class="card" hidden>
-  <p class="muted">Upload a CSV with the same columns as the training data (the churn column is not needed).</p>
-  <div class="row">
-    <input type="file" id="batch-file" accept=".csv">
-    <button class="btn" id="btn-batch">Score all customers</button>
-    <a class="btn ghost" id="btn-download" href="/api/predict/batch/download" hidden>Download results</a>
-  </div>
-  <p id="batch-summary"></p>
+<div id="msg" class="msg"></div>
+<div id="tab-single" class="dash">
+  <section class="panel"><h2>Customer details</h2>
+    <div style="margin-top:14px">{% with form_id = "single-form" %}{% include "_customer_form.html" %}{% endwith %}</div>
+    <button class="btn" id="single-go" type="button" style="margin-top:16px">{% include "_i_search.html" %}Predict Churn</button></section>
+  <section id="single-result" class="panel result" hidden></section>
+</div>
+<section id="tab-batch" class="panel" hidden>
+  <h2>Score a file</h2><p class="sub">Upload a CSV with the same columns as the training data. The churn column is not needed.</p>
+  <div class="row" style="margin-top:14px"><input type="file" id="batch-file" accept=".csv">
+    <button class="btn" id="batch-go" type="button">Score all customers</button>
+    <a class="btn ghost" id="batch-dl" href="/api/predict/batch/download" hidden>Download results</a></div>
+  <p id="batch-summary" style="margin-top:14px"></p>
   <div class="table-wrap" id="batch-table"></div>
 </section>
 {% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pages.js') }}"></script>{% endblock %}

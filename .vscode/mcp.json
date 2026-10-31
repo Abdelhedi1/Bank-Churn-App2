@@ -1,0 +1,14 @@
+{
+  "inputs": [
+    { "type": "promptString", "id": "github_token", "description": "GitHub token (read-only scopes)", "password": true }
+  ],
+  "servers": {
+    "playwright": { "command": "npx", "args": ["@playwright/mcp@latest"] },
+    "context7": { "command": "npx", "args": ["-y", "@upstash/context7-mcp@latest"] },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": { "Authorization": "Bearer ${input:github_token}" }
+    }
+  }
+}

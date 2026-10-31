@@ -33,8 +33,8 @@ cp .env.example .env
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
-# 5. Data (not in git): put "Bank Customer Churn Prediction.csv" in data/
-#    or upload any CSV from the Data page
+# 5. Data: an 8,000-customer sample is in data/ - click "Load sample data"
+#    on the Data page, or upload your own CSV
 
 # 6. Run the app, then open http://127.0.0.1:5000
 python run.py
@@ -116,3 +116,15 @@ tests/test_ml.py
 4. CI must be green before merging.
 
 Full details in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+
+## Run it (Windows)
+```
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python run.py
+```
+Open http://127.0.0.1:5000. Demo accounts: `admin`, `retention`, `executive`, `rm_france`, `rm_germany`, `rm_spain`. Password: `churn-demo-2026` (change it by setting `DEMO_PASSWORD` before the first run).
+First use (as admin): Data & Upload → Load sample → Generate features → Train. Scoring then runs automatically.
+Tests: `pytest`. Details: `docs/architecture.md`, `docs/requirements-traceability.md`.

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Customer Insights · BankChurn AI{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Customer Insights</h1>
+<p>{% if user['role'] == 'rm' %}The customers assigned to you, highest risk first.{% else %}All active customers, highest risk first.{% endif %} Customer references are masked.</p></div>
+<section class="panel">
+  <div class="filters">
+    <label>Risk level<select id="f-tier"><option value="">All</option><option>High</option><option>Medium</option><option>Low</option></select></label>
+    <label>Products<select id="f-products"><option value="">All</option><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+    <label>Country / branch<select id="f-country"><option value="">All</option><option>France</option><option>Germany</option><option>Spain</option></select></label>
+  </div>
+  <div class="table-wrap"><table id="cust-table"><thead><tr><th>Customer</th><th>Country</th><th class="num">Products</th><th>Active</th><th>Churn probability</th><th>Risk</th><th>Main reason</th></tr></thead><tbody></tbody></table></div>
+  <div class="pager"><span id="pg-info"></span><span class="row"><button class="btn ghost small" id="pg-prev">Previous</button><button class="btn ghost small" id="pg-next">Next</button></span></div>
+</section>
+<aside id="drawer" class="drawer" hidden aria-label="Customer detail">
+  <div class="drawer-head"><h2 id="dr-title"></h2><button class="btn ghost small" id="dr-close" aria-label="Close">{% include "_i_close.html" %}</button></div>
+  <dl class="profile" id="dr-profile"></dl>
+  <section id="dr-result" class="panel result" style="padding:16px"></section>
+  <h3 style="margin:16px 0 8px;font-size:15px">Retention actions</h3>
+  <ul class="history" id="dr-history"></ul>
+  <form id="dr-form" class="panel" style="padding:14px;display:grid;gap:10px" hidden>
+    <label>Action<select name="type"><option>Phone call</option><option>Email</option><option>Offer proposed</option><option>Meeting</option><option>Other</option></select></label>
+    <label>Notes<textarea name="notes" maxlength="500"></textarea></label>
+    <button class="btn" type="submit">Log action</button><div id="dr-msg" class="msg"></div>
+  </form>
+</aside>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pages.js') }}"></script>{% endblock %}

@@ -18,6 +18,9 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.sample.json
+!.vscode/mcp.json
+.claude/settings.local.json
+instance/
 .idea/
 *.swp
 *.swo
@@ -70,6 +73,7 @@ env/
 models/
 # data/raw/
 !tests/**/*.csv
+!data/Bank Customer Churn Prediction.csv
 
 # =============================================================================
 # Java / Kotlin / Android
