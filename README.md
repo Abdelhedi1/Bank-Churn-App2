@@ -2,7 +2,7 @@
 
 > A web application that predicts which bank customers are likely to leave, for bank analysts and retention teams.
 
-**Team:** Hedi _(add teammates)_
+**Team:** Abdelhedi Elhamdi
 **Course:** CS 488 — AI-First Software Engineering
 **Status:** 🚧 In development
 
