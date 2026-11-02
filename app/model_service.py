@@ -98,8 +98,8 @@ class ModelManager:
                 "metrics": {k: v[2] for k, v in results.items()},
                 "params": {k: v[1] for k, v in results.items()},
                 "smote": use_smote,
-                "train_rows": int(len(prep["y_train"])),
-                "test_rows": int(len(prep["y_test"])),
+                "train_rows": len(prep["y_train"]),
+                "test_rows": len(prep["y_test"]),
             }
             ml.save_artifacts(self.dir, model, prep["scaler"], prep["feature_names"],
                               ml.MODEL_LABELS[best_key], prep["input_columns"], meta)
@@ -108,5 +108,5 @@ class ModelManager:
                 self.job = {"status": "running", "message": "Scoring customers with the new model…", "error": None}
                 on_done()
             self.job = {"status": "done", "message": f"Best model: {ml.MODEL_LABELS[best_key]}", "error": None}
-        except Exception as exc:  # surfaced to the admin on the Data page
+        except Exception as exc:  # surfaced to the admin on the Data page  # noqa: BLE001 - report any failure to the user
             self.job = {"status": "error", "message": "", "error": str(exc)}

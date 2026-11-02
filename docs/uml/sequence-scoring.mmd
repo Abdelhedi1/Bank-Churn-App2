@@ -1,0 +1,15 @@
+sequenceDiagram
+  participant S as Scheduler (weekly) / Admin
+  participant SE as scoring.py
+  participant MM as ModelManager
+  participant DB as DataStore
+  participant OB as Alert listeners
+  S->>SE: run_batch(trigger)
+  SE->>DB: create scoring_job (running)
+  SE->>DB: read active customers
+  SE->>MM: predict_proba(all customers)
+  MM-->>SE: probabilities
+  SE->>DB: save scores, drop scores of jobs older than 4
+  SE->>DB: create alerts where probability >= threshold
+  SE->>OB: notify relationship managers
+  SE->>DB: close job (done, seconds, high-risk count)

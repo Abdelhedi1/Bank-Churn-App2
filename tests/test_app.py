@@ -175,7 +175,7 @@ def test_user_management(env):
 
 def test_ingest_validates_and_accepts_reduced_files(fresh_app):
     a = client_for(fresh_app, "admin")
-    up = lambda csv: a.post("/api/data/upload", data={"file": (io.BytesIO(csv), "d.csv")},  # noqa: E731
+    up = lambda csv: a.post("/api/data/upload", data={"file": (io.BytesIO(csv), "d.csv")},
                             headers=a.h, content_type="multipart/form-data")
     assert up(b"a,b\n1,2\n").status_code == 400
     small = make_df(50)[["credit_score", "country", "products_number", "credit_card", "active_member",
@@ -195,10 +195,8 @@ def test_weekly_schedule_logic(env):
 
 
 def test_bundled_sample_dataset_loads(tmp_path):
-    from pathlib import Path
 
     from app import create_app
-    root = Path(__file__).resolve().parent.parent
     app = create_app({"TESTING": True, "DB_PATH": tmp_path / "s.db", "MODELS_DIR": tmp_path / "m"})
     c = client_for(app, "admin")
     r = c.post("/api/data/sample", headers=c.h)

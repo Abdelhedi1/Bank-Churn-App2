@@ -1,0 +1,29 @@
+flowchart TB
+  U([Signed-in user])
+  EXE([Executive])
+  STAFF([Staff member])
+  RM([Relationship Manager])
+  RET([Retention Manager])
+  ADM([Administrator])
+  RM -.->|is a| STAFF
+  RET -.->|is a| STAFF
+  ADM -.->|is a| STAFF
+  EXE -.->|is a| U
+  STAFF -.->|is a| U
+  subgraph S[BankChurn AI]
+    UC1(View dashboard and KPIs)
+    UC7(View monthly KPI report)
+    UC2(Predict churn for a customer)
+    UC3(Browse customers in scope)
+    UC4(Acknowledge alerts)
+    UC5(Log retention action)
+    UC6(Export high-risk list)
+    UC8(Upload data and train models)
+    UC9(Run scoring, set alert threshold)
+    UC10(Manage users, read audit log)
+  end
+  U --> UC1
+  EXE --> UC7
+  STAFF --> UC2 & UC3 & UC4 & UC5
+  RET --> UC6 & UC7
+  ADM --> UC6 & UC7 & UC8 & UC9 & UC10

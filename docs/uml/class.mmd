@@ -1,0 +1,59 @@
+classDiagram
+  class ChurnModel {
+    <<abstract>>
+    +name
+    +train(X, y)
+    +predict_proba(X)
+    +explain(X)
+  }
+  class SklearnChurnModel
+  class ModelManager {
+    +prepare()
+    +start_training()
+    +active_model()
+    +on_done(callback)
+  }
+  class ScoringEngine {
+    +run_batch(trigger)
+    +is_due()
+    +start_scheduler()
+    +subscribe(listener)
+  }
+  class IngestService {
+    +ingest_dataframe(df)
+    +load_model_frame()
+  }
+  class Advice {
+    +risk_tier(p)
+    +suggest_actions(customer)
+  }
+  class Reports {
+    +monthly_report(month)
+  }
+  class AccessControl {
+    +require(roles)
+    +scope_sql(user)
+    +audit(action, customer)
+  }
+  class DataStore {
+    +connect()
+    +get_setting(key)
+    +set_setting(key, value)
+  }
+  class User { id; username; role; branch; active }
+  class Customer { id; customer_ref; country; age; balance; churn }
+  class Score { job_id; customer_id; probability; tier }
+  class Alert { id; customer_id; acknowledged }
+  class RetentionAction { id; customer_id; kind; status }
+  ChurnModel <|-- SklearnChurnModel
+  ModelManager o-- ChurnModel
+  ScoringEngine --> ModelManager
+  ScoringEngine --> Advice
+  ScoringEngine --> DataStore
+  IngestService --> DataStore
+  Reports --> DataStore
+  AccessControl --> User
+  Customer "1" --> "*" Score
+  Customer "1" --> "*" Alert
+  Customer "1" --> "*" RetentionAction
+  User "1" --> "*" Customer : manages

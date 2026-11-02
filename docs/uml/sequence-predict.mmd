@@ -1,0 +1,22 @@
+sequenceDiagram
+  actor RM as Relationship Manager
+  participant UI as Browser (pages.js)
+  participant API as api.py
+  participant AC as auth.py
+  participant MM as ModelManager
+  participant DB as DataStore
+  RM->>UI: fill form, click Predict
+  UI->>API: POST /api/predict (X-CSRF-Token)
+  API->>AC: check session, role, CSRF
+  AC-->>API: allowed
+  API->>API: validate values against BOUNDS
+  alt invalid input
+    API-->>UI: 400 error message
+  else valid
+    API->>MM: predict_proba + explain
+    MM-->>API: probability, factors
+    API->>API: risk_tier, suggest_actions
+    API->>DB: audit(predict_adhoc)
+    API-->>UI: probability, tier, factors, actions
+    UI-->>RM: result panel
+  end

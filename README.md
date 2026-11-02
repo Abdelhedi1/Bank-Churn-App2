@@ -128,3 +128,8 @@ python run.py
 Open http://127.0.0.1:5000. Demo accounts: `admin`, `retention`, `executive`, `rm_france`, `rm_germany`, `rm_spain`. Password: `churn-demo-2026` (change it by setting `DEMO_PASSWORD` before the first run).
 First use (as admin): Data & Upload → Load sample → Generate features → Train. Scoring then runs automatically.
 Tests: `pytest`. Details: `docs/architecture.md`, `docs/requirements-traceability.md`.
+
+## System diagram and documents
+![Components](docs/uml/component.png)
+
+UML (PNG + Mermaid source) in `docs/uml/`: use-case, class, two sequence diagrams (predict, weekly scoring), component. API: `docs/openapi.yaml`. Also: `docs/user-guide.md`, `docs/methodology-and-backlog.md`, `docs/requirements-traceability.md`, `docs/refactor-and-optimization-report.md`, `docs/ethics-and-ai-usage.md`, `docs/ai-usage-log.md`, `docs/honesty-statement.md`, `docs/crisp-dm.md`, `docs/architecture.md`.

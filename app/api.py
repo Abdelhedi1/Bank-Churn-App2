@@ -9,7 +9,7 @@ from __future__ import annotations
 import csv
 import io
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pandas as pd
 from flask import Blueprint, Response, current_app, g, jsonify, request
@@ -27,8 +27,13 @@ ACTION_TYPES = ("Phone call", "Email", "Offer proposed", "Meeting", "Other")
 SEGMENTS = {
     "products": ("COALESCE(CAST(c.products_number AS INTEGER), 'Unknown')", "Number of products"),
     "country": ("COALESCE(c.country, 'Unknown')", "Country"),
-    "age": ("CASE WHEN c.age IS NULL THEN 'Unknown' WHEN c.age < 30 THEN '18-29' WHEN c.age < 40 THEN '30-39' "
-            "WHEN c.age < 50 THEN '40-49' WHEN c.age < 60 THEN '50-59' ELSE '60+' END", "Age band"),
+    "age": (
+        (
+            "CASE WHEN c.age IS NULL THEN 'Unknown' WHEN c.age < 30 THEN '18-29' WHEN c.age < 40 THEN '30-39' "
+            "WHEN c.age < 50 THEN '40-49' WHEN c.age < 60 THEN '50-59' ELSE '60+' END"
+        ),
+        "Age band",
+    ),
     "tenure": ("COALESCE(CAST(c.tenure AS INTEGER), 'Unknown')", "Years as a customer"),
 }
 BOUNDS = {  # sanity limits for the quick-predict form
@@ -188,7 +193,7 @@ def predict_batch():
         if missing:
             return _err(f"Missing columns: {', '.join(missing)}")
         probs = model.predict_proba(raw[model.input_columns]) * 100
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - report any failure to the user
         return _err(f"Could not score this file: {exc}")
     out = raw.copy()
     out["churn_probability"] = probs.round(1)
@@ -215,7 +220,7 @@ def download_batch():
     out.to_csv(buf, index=False)
     audit("download_batch", detail=f"{len(out)} rows")
     return Response(buf.getvalue(), mimetype="text/csv", headers={
-        "Content-Disposition": f"attachment; filename=churn_scoring_{datetime.now():%Y%m%d_%H%M%S}.csv"})
+        "Content-Disposition": f"attachment; filename=churn_scoring_{datetime.now(UTC):%Y%m%d_%H%M%S}.csv"})
 
 
 # ------------------------------------------------------------ customers
@@ -405,14 +410,14 @@ def export_segment():
                     factors, r["rm"] or ""])
     audit("export_segment", detail=f"{len(rows)} customers, filters={json.dumps(args)[:200]}")
     return Response(buf.getvalue(), mimetype="text/csv", headers={
-        "Content-Disposition": f"attachment; filename=churn_segment_{datetime.now():%Y%m%d}.csv"})
+        "Content-Disposition": f"attachment; filename=churn_segment_{datetime.now(UTC):%Y%m%d}.csv"})
 
 
 # -------------------------------------------------------------- reports
 @bp.get("/reports/monthly")
 @require("retention_manager", "admin", "executive")
 def monthly():
-    month = request.args.get("month") or datetime.now().strftime("%Y-%m")
+    month = request.args.get("month") or datetime.now(UTC).strftime("%Y-%m")
     try:
         report = reports.monthly_report(db.get_db(), month)
     except ValueError as exc:
@@ -423,7 +428,7 @@ def monthly():
 @bp.get("/reports/monthly.csv")
 @require("retention_manager", "admin", "executive")
 def monthly_csv():
-    month = request.args.get("month") or datetime.now().strftime("%Y-%m")
+    month = request.args.get("month") or datetime.now(UTC).strftime("%Y-%m")
     try:
         report = reports.monthly_report(db.get_db(), month)
     except ValueError as exc:
@@ -464,7 +469,7 @@ def upload():
         result = ingest.ingest_dataframe(db.get_db(), pd.read_csv(f))
     except ValueError as exc:
         return _err(str(exc))
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - report any failure to the user
         return _err(f"Could not read the CSV: {exc}")
     audit("ingest_data", detail=f"{f.filename}: {result['rows']} rows")
     return jsonify({"ok": True, "source": f.filename, **result})
@@ -495,7 +500,7 @@ def summary():
     corr = numeric.corr().round(2)
     labeled = df["churn"].dropna() if "churn" in df.columns else pd.Series(dtype=float)
     return jsonify({
-        "rows": int(len(df)), "columns": int(df.shape[1]), "missing": int(df.isnull().sum().sum()),
+        "rows": len(df), "columns": int(df.shape[1]), "missing": int(df.isnull().sum().sum()),
         "churn_rate": float(labeled.mean()) if len(labeled) else None,
         "head": df.head(10).astype(object).where(df.head(10).notna(), None).to_dict(orient="records"),
         "column_info": [{"column": c, "type": str(df[c].dtype), "non_null": int(df[c].notnull().sum()),
@@ -514,7 +519,7 @@ def build_features():
         return _err("Need at least 100 customers with a known churn outcome (both stayed and left).", 409)
     prepared = _manager().prepare(frame)
     return jsonify({"n_features": len(prepared["feature_names"]), "features": prepared["feature_names"],
-                    "train_rows": int(len(prepared["y_train"])), "test_rows": int(len(prepared["y_test"]))})
+                    "train_rows": len(prepared["y_train"]), "test_rows": len(prepared["y_test"])})
 
 
 @bp.post("/train")
@@ -534,7 +539,7 @@ def train():
     def rescore():  # a new model version is scored right away so the dashboard is never stale
         try:
             scoring.run_batch(app.config["DB_PATH"], mgr, trigger="after_training")
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - report any failure to the user
             app.logger.warning("Scoring after training failed: %s", exc)
 
     mgr.start_training(keys, bool(body.get("smote", True)), on_done=rescore)
@@ -604,7 +609,7 @@ def create_user():
         uid = conn.execute(
             "INSERT INTO users(username, name, role, branch, password_hash) VALUES (?,?,?,?,?)",
             (username, name, role, branch, generate_password_hash(password))).lastrowid
-    except Exception:
+    except Exception:  # noqa: BLE001 - report any failure to the user
         return _err("That username already exists.", 409)
     if role == "rm" and branch:  # take over this branch's unassigned customers
         conn.execute("UPDATE customers SET assigned_rm = ? WHERE branch = ? AND assigned_rm IS NULL", (uid, branch))

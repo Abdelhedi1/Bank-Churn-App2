@@ -1,0 +1,431 @@
+openapi: 3.0.3
+info:
+  title: BankChurn AI API
+  version: 1.0.0
+  description: JSON API behind the dashboard. Sign in at /login first (session cookie).
+    Write requests need the X-CSRF-Token header (value of the page's csrf-token meta
+    tag).
+components:
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: session
+    csrf:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+paths:
+  /api/status:
+    get:
+      summary: Model and last scoring status
+      description: Any signed-in user.
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/dashboard:
+    get:
+      summary: KPIs, segment trend, risk tiers, top reasons
+      description: Any signed-in user.
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/schema:
+    get:
+      summary: Input fields and limits for the prediction form
+      description: Any signed-in user.
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/predict:
+    post:
+      summary: Predict churn for one customer (explanations and suggested actions)
+      description: Any signed-in user.
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+        '400':
+          description: Invalid input
+      security:
+      - session: []
+        csrf: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                credit_score:
+                  type: number
+                country:
+                  type: string
+                products_number:
+                  type: integer
+                active_member:
+                  type: integer
+                age:
+                  type: number
+                tenure:
+                  type: number
+                balance:
+                  type: number
+  /api/predict/batch:
+    post:
+      summary: Score an uploaded CSV
+      description: 'Roles: rm, retention_manager, admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+  /api/predict/batch/download:
+    get:
+      summary: Download the last batch result as CSV
+      description: 'Roles: rm, retention_manager, admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/customers:
+    get:
+      summary: Paged customer list (relationship managers see only their own)
+      description: 'Roles: rm, retention_manager, admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/customers/{cid}:
+    get:
+      summary: One customer with score, factors and actions (audited)
+      description: 'Roles: rm, retention_manager, admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      parameters:
+      - name: cid
+        in: path
+        required: true
+        schema:
+          type: integer
+  /api/retention/actions:
+    get:
+      summary: List retention actions
+      description: 'Roles: rm, retention_manager, admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+    post:
+      summary: Log a retention action (nothing is sent to the customer)
+      description: 'Roles: rm, retention_manager, admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+  /api/retention/actions/{action_id}:
+    patch:
+      summary: Update an action's status
+      description: 'Roles: rm, retention_manager, admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+      parameters:
+      - name: action_id
+        in: path
+        required: true
+        schema:
+          type: integer
+  /api/alerts:
+    get:
+      summary: List alerts
+      description: 'Roles: rm, retention_manager, admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/alerts/{alert_id}/ack:
+    post:
+      summary: Acknowledge an alert
+      description: 'Roles: rm, retention_manager, admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+      parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema:
+          type: integer
+  /api/export/high-risk.csv:
+    get:
+      summary: Export high-risk customers (audited)
+      description: 'Roles: retention_manager, admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/reports/monthly:
+    get:
+      summary: Monthly KPI report as JSON
+      description: 'Roles: retention_manager, admin, executive.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/reports/monthly.csv:
+    get:
+      summary: Monthly KPI report as CSV
+      description: 'Roles: retention_manager, admin, executive.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/model:
+    get:
+      summary: Model comparison metrics and importance
+      description: Any signed-in user.
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/data/upload:
+    post:
+      summary: Upload a customer CSV
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+  /api/data/sample:
+    post:
+      summary: Load the bundled 8,000-customer sample
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+  /api/data/summary:
+    get:
+      summary: Summary of the loaded data
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/features:
+    post:
+      summary: Generate model features
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+  /api/train:
+    post:
+      summary: Train and compare models (background job, then auto-scoring)
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+  /api/admin/score:
+    post:
+      summary: Run a scoring job now
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+  /api/admin/jobs:
+    get:
+      summary: Recent scoring jobs
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+  /api/admin/settings:
+    get:
+      summary: Alert threshold
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+    post:
+      summary: Set alert threshold (1-99)
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+  /api/admin/users:
+    get:
+      summary: List users
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+    post:
+      summary: Create a user
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+  /api/admin/users/{uid}/active:
+    post:
+      summary: Activate or deactivate a user
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed
+      security:
+      - session: []
+        csrf: []
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: integer
+  /api/admin/audit:
+    get:
+      summary: Audit log
+      description: 'Roles: admin.'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Not signed in
+        '403':
+          description: Role not allowed

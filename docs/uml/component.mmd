@@ -1,0 +1,24 @@
+flowchart TB
+  Browser["Browser: Jinja pages, core.js, pages.js, Plotly"]
+  subgraph Server["Flask server (python run.py)"]
+    Web[web.py pages]
+    Api[api.py JSON API]
+    Auth[auth.py login, roles, CSRF, audit]
+    Ing[ingest.py]
+    Sco[scoring.py + weekly scheduler]
+    Mod[model_service.py + ml.py]
+    Adv[advice.py, reports.py]
+  end
+  Store[(SQLite: churn data store)]
+  Files[(models/ joblib artifacts)]
+  Browser -->|HTTP| Web
+  Browser -->|fetch JSON| Api
+  Web --> Auth
+  Api --> Auth
+  Api --> Ing & Sco & Mod & Adv
+  Sco --> Mod
+  Ing --> Store
+  Sco --> Store
+  Auth --> Store
+  Adv --> Store
+  Mod --> Files

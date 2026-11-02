@@ -52,7 +52,10 @@ jobs:
       - name: Run Python tests
         # Won't fail the build if you have no tests yet.
         if: ${{ hashFiles('requirements.txt') != '' }}
-        run: pip show pytest >/dev/null 2>&1 && pytest || echo "No pytest / no tests yet — skipping."
+        run: |
+          pip install pytest pytest-cov ruff
+          ruff check app tests
+          pytest --cov=app --cov-fail-under=60
 
       # --- Docs reminder (always runs, never fails the build) -----------------
       - name: Docs reminder

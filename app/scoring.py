@@ -11,8 +11,6 @@ import threading
 import time
 from datetime import datetime, timedelta, timezone
 
-import pandas as pd
-
 from . import db, ingest
 from .advice import risk_tier
 
@@ -139,7 +137,7 @@ def start_scheduler(app, check_every_s: int = 3600) -> None:
                 manager = app.extensions["models"]
                 if due and has_customers and manager.model is not None:
                     run_batch(app.config["DB_PATH"], manager, trigger="scheduled")
-            except Exception as exc:  # keep the scheduler alive; the failed job row records the reason
+            except Exception as exc:  # keep the scheduler alive; the failed job row records the reason  # noqa: BLE001 - report any failure to the user
                 app.logger.warning("Scheduled scoring failed: %s", exc)
 
     threading.Thread(target=loop, daemon=True, name="weekly-scoring").start()

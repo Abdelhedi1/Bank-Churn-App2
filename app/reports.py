@@ -36,7 +36,7 @@ def monthly_report(conn, month: str) -> dict:
         snapshot["run_finished_at"] = job["finished_at"]
         snapshot["model"] = job["model_name"]
 
-    one = lambda sql, *a: conn.execute(sql, a).fetchone()[0]  # noqa: E731
+    one = lambda sql, *a: conn.execute(sql, a).fetchone()[0]
     activity = {
         "scoring_runs": one("SELECT COUNT(*) FROM scoring_jobs WHERE status='done' AND finished_at LIKE ?", like),
         "alerts_created": one("SELECT COUNT(*) FROM alerts WHERE created_at LIKE ?", like),
