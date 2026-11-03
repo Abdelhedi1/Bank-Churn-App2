@@ -24,7 +24,8 @@ just adds Claude-specific working notes.
 # install deps:   python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
 # run the app:    python run.py        (http://127.0.0.1:5000)
 # run tests:      pytest
-# lint/format:    (none configured yet)
+# lint:           ruff check app tests   (rules in ruff.toml)
+# coverage:       pytest --cov=app
 ```
 
 ## Project-specific guidance

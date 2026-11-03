@@ -8,10 +8,10 @@
 
 ## 1. Project summary
 
-**Name:** Churn Detection Pro
+**Name:** BankChurn AI (Churn Detection Pro)
 **One-liner:** A web application that predicts which bank customers are likely to leave (churn).
-**Primary users:** Bank analysts / retention teams.
-**The AI-assisted component:** Two ML classifiers (Logistic Regression and LightGBM, trained with SMOTE and 5-fold CV) score customers one by one or in batch; the best model by ROC AUC serves predictions.
+**Primary users:** Relationship managers, retention managers, executives, administrators.
+**The AI-assisted component:** Two ML classifiers (Logistic Regression and LightGBM, trained with SMOTE and 5-fold CV) score customers one by one, in batch and weekly; the best model by ROC AUC serves predictions.
 
 - SRS / requirements: Lab 2/3 SRS (`docs/`)
 - Architecture: [`docs/architecture.md`](docs/architecture.md)
@@ -24,21 +24,25 @@
 | Framework   | Flask 3 (server-rendered pages + JSON API)                      |
 | ML          | pandas, scikit-learn, imbalanced-learn (SMOTE), LightGBM        |
 | Charts      | Plotly.js (CDN)                                                 |
-| Database    | none — in-memory state; trained model saved to `models/`        |
+| Database    | SQLite (`instance/churn.db`); trained model files in `models/`  |
 | Package mgr | pip + venv (`requirements.txt`)                                 |
-| Testing     | pytest                                                          |
+| Testing     | pytest, pytest-cov, ruff (CI on GitHub Actions)                 |
 | Deploy      | none yet (`python run.py` locally)                              |
 
 ## 3. Project structure
 
 - `app/ml.py` — pure ML code: cleaning, features, training, prediction (no Flask)
-- `app/routes.py` — Flask pages and `/api/*` JSON endpoints
+- `app/model_service.py` — model management (`ChurnModel` Strategy, `ModelManager`)
+- `app/db.py` — SQLite schema and settings (data store)
+- `app/auth.py` — login, roles, CSRF, audit log
+- `app/ingest.py`, `app/scoring.py`, `app/advice.py`, `app/reports.py` — ingestion, batch and weekly scoring with alerts, suggested actions, monthly report
+- `app/api.py` — JSON endpoints; `app/web.py` — pages
 - `app/templates/` — Jinja pages (`base.html` + one per page)
-- `app/static/` — `css/style.css`, `js/app.js`
-- `data/` — `Bank Customer Churn Prediction.csv`: 8,000-customer sample of the public Churn_Modelling dataset (no names; the only CSV committed)
+- `app/static/` — `css/app.css`, `js/core.js`, `js/pages.js`
+- `data/` — `Bank Customer Churn Prediction.csv`: 8,000-customer synthetic sample (no names; the only CSV committed)
 - `models/` — saved trained model (gitignored)
 - `tests/` — pytest tests (synthetic data only)
-- `docs/` — architecture, ADRs, changelog, setup report
+- `docs/` — architecture, UML, OpenAPI, ADRs, changelog, guides, reports
 - `scripts/` — helper scripts
 
 ## 4. Conventions the assistant MUST follow
@@ -46,7 +50,7 @@
 - **Style:** follow `.editorconfig`. Don't reformat unrelated code.
 - **Naming:** `snake_case` in Python; `camelCase` in JavaScript; dataset columns are lowercase `snake_case`.
 - **Comments:** explain *why*, not *what*.
-- **Separation:** ML logic goes in `app/ml.py`; routes stay thin; no ML code in templates/JS.
+- **Separation:** ML logic goes in `app/ml.py` and `app/model_service.py`; routes stay thin; no ML code in templates/JS.
 - **Dependencies:** do **not** add a library without the team agreeing first.
 - **Secrets:** never hardcode keys. Use `.env` (gitignored); see `.env.example`.
 - **Data:** never commit real customer data or model files; the only committed CSV is the anonymised public sample in `data/`.
@@ -57,7 +61,7 @@
 
 - Don't invent requirements — ask or leave a `TODO` with your name.
 - Don't delete or rewrite large sections you weren't asked to touch.
-- Don't commit generated files, `.venv/`, `models/`, other CSV data or `.env`.
+- Don't commit generated files, `.venv/`, `models/`, `instance/`, other CSV data or `.env`.
 - Don't paste private customer data or credentials into AI chats.
 
 ## 6. Glossary / domain terms
@@ -70,4 +74,4 @@
 
 ---
 
-_Last updated: 2026-10-19 by Hedi._
+_Last updated: 2026-11-03 by Hedi._
