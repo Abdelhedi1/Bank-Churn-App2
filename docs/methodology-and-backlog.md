@@ -1,7 +1,7 @@
 # Methodology and backlog
 
-## Choice: Scrum, 1-week sprints (individual project)
-Reason: one developer, fixed course deadline, requirements already stable (SRS), so short sprints with a demo at each end reduce risk. Kanban was rejected because there is no continuous flow of changes. Estimates are T-shirt sizes by the developer; AI helped draft them and the student must validate them.
+## Choice: Scrum, 2-week sprints (individual project)
+Reason: one developer, fixed course deadline, requirements already stable (SRS), so two-week sprints (the recommended length for small teams) with a demo at each end reduce risk. Kanban was rejected because there is no continuous flow of changes. Estimates are T-shirt sizes by the developer; AI helped draft them and the student must validate them.
 
 ## Requirements elicitation (AI-assisted)
 Prompt used: *Act as a product analyst. Given the SRS notes of Lab 2 (bank churn prediction), produce user stories with acceptance criteria, non-functional requirements and MoSCoW priority.* Edited result:
