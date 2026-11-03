@@ -4,7 +4,7 @@
 Reason: one developer, fixed course deadline, requirements already stable (SRS), so two-week sprints (the recommended length for small teams) with a demo at each end reduce risk. Kanban was rejected because there is no continuous flow of changes. Estimates are T-shirt sizes by the developer; AI helped draft them and the student must validate them.
 
 ## Requirements elicitation (AI-assisted)
-Prompt used: *Act as a product analyst. Given the SRS notes of Lab 2 (bank churn prediction), produce user stories with acceptance criteria, non-functional requirements and MoSCoW priority.* Edited result:
+The stories below were drafted by the AI assistant (Claude) from the Lab 2 SRS, after the student's request: *"okey i want you know to go throught the requirement and the design ..."* (full text in `docs/ai-usage-log.md`, row 5). The instructor's template prompt ("Act as a product analyst...") was not used. The student still has to validate the stories and priorities with a peer or the instructor.
 
 | ID | User story | Acceptance criteria | MoSCoW | Size |
 |---|---|---|---|---|

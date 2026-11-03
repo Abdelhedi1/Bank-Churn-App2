@@ -1,16 +1,26 @@
 # AI usage log
 
-Tool: Claude (Claude Code / Claude app). Output flagged as **direct** = used with little change; **edited** = changed after review or testing.
+Tool: Claude (Anthropic), used in the Claude app / Claude Code. Prompts below are the student's own messages, copied as written (spelling kept). **direct** = output used with little change; **edited** = changed after review, running or testing.
 
-| Date | Prompt (summary, by the student) | Output | Flag |
-|---|---|---|---|
-| 2026-10 | Read the Lab 6 files, build it as a real website (not Streamlit), give a GitHub repo | Flask port of the prototype, repo layout | edited (data columns, errors fixed after running) |
-| 2026-10 | Make a dataset like Churn_Modelling with credit score, products, card, active, salary, country; later "make it 8000 clients" | 8,000-row dataset | edited (sampling bug 7,999 rows fixed) |
-| 2026-10 | Write the CRISP-DM documentation | `docs/crisp-dm.md` | direct, to be reviewed |
-| 2026-10 | Go through the requirements (Lab 2) and design (Lab 5) and use the Skills/MCP PDF | Roles, audit, alerts, scoring, reports, skills, MCP configs | edited |
-| 2026-10 | Make the interface look like my dashboard screenshot | Dark theme, pages, charts | edited (chart axes, drawer bugs fixed after browser run) |
-| 2026-10 | Work the missing parts of the instructor checklist | UML (Mermaid), OpenAPI, guides, reports | direct, to be reviewed |
+| # | Date | Prompt (student, verbatim) | What the AI produced | Flag |
+|---|---|---|---|---|
+| 1 | Oct 2026 | "read this first and i want from it to work lab 6 i will attache it and i want to work real website not with streamlit and i will show you how i want it like the lab and i m gonna push it on github and i need a repo" | Flask port of the Streamlit prototype and repo layout | edited (errors fixed after running it) |
+| 2 | Oct 2026 | "can you do a data as this but contains credit_score, products_number, credit_card, active_member, estimated_salary, country" | Reduced-column dataset and optional columns in the app | edited |
+| 3 | Oct 2026 | "i want the project work on this data enhance it and make it for example 8000 client" | 8,000-customer dataset | edited (a sampling bug giving 7,999 rows was fixed) |
+| 4 | Oct 2026 | "provide an md file having detailed documentation about all the steps of the crispdm steps of the project" | `docs/crisp-dm.md` | direct, to be reviewed |
+| 5 | Oct 2026 | "okey i want you know to go throught the requirement and the design also i m going to attacch a file that have AI Coding: Skills and MCPs and you need to use all files to work the application" | Roles, audit log, alerts, scoring, reports, skills and MCP configs, traceability table, user stories | edited |
+| 6 | Oct 2026 | "and i want interface looks like this" (with a screenshot of a dark dashboard) | Dark interface, seven pages, charts | edited (chart and drawer bugs fixed after a browser run) |
+| 7 | Oct 2026 | "finish and make it faster" | Packaged runnable project | direct |
+| 8 | 31 Oct 2026 | "does my work is ligned with the instructors" (with the instructor's guidance) | Gap analysis against the checklist | direct |
+| 9 | 31 Oct 2026 | "can you work the missing parrts for me?" | UML (Mermaid and PNG), OpenAPI file, user guide, ethics reflection, refactor report, methodology and backlog, CI changes | direct, to be reviewed |
+| 10 | 31 Oct 2026 | "yes please" (slides and proposal) | First slide deck and proposal PDF | edited |
+| 11 | 31 Oct 2026 | "more profiional please i think its short also change the colors i dont want to know its ai generatd for both files" | Longer deck (18 slides) and 5-page proposal in a new colour scheme. The AI use itself stays documented in this log and in the ethics reflection. | direct, to be reviewed |
+| 12 | 2 Nov 2026 | "cbtw can you generate a full csv file that i can use to let the app work and make it long list" | 20,000-row synthetic dataset | direct |
 
-Bugs the AI introduced and that testing caught: missing-column crash in data summary, wrong id type when adding an action, UI saying "training complete" before scoring finished, trend chart axes. Prompts were not saved word for word; the table summarizes them.
+Not every short follow-up message is listed (for example error pastes and "done"). Earlier prompts were recovered from the conversation history, so the exact timing of items 1 to 7 is only approximate.
 
-**Student to complete**: exact prompt text from your own chat history for the requirements step (section A of the guidance).
+## Bugs introduced by the AI and caught by testing
+Crash when the churn column was missing from a data summary; wrong id type when adding a retention action from the customer drawer; the interface reporting "Training complete" before scoring had finished; trend chart axes; lint failures in CI after a newer ruff version (fixed with a pinned `ruff.toml`).
+
+## Review by the student
+The student ran the application, pushed the code, and checked that CI passes. Documents were generated by AI and must be read and corrected by the student before submission.
