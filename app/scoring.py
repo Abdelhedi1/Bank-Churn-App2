@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import threading
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from . import db, ingest
 from .advice import risk_tier
@@ -108,11 +108,11 @@ def latest_job_id(conn) -> int | None:
 # ------------------------------------------------------------- scheduler
 def is_due(conn, now: datetime | None = None) -> bool:
     """True when no successful run exists or the last one is older than a week."""
-    now = now or datetime.now(timezone.utc)
+    now = now or datetime.now(UTC)
     row = conn.execute("SELECT MAX(finished_at) AS t FROM scoring_jobs WHERE status = 'done'").fetchone()
     if not row["t"]:
         return True
-    last = datetime.strptime(row["t"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+    last = datetime.strptime(row["t"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=UTC)
     return now - last >= timedelta(days=SCHEDULE_DAYS)
 
 

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import threading
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -93,7 +93,7 @@ class ModelManager:
             best_key = max(results, key=lambda k: results[k][2]["auc"])
             model = results[best_key][0]
             meta = {
-                "trained_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+                "trained_at": datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S"),
                 "labels": ml.MODEL_LABELS,
                 "metrics": {k: v[2] for k, v in results.items()},
                 "params": {k: v[1] for k, v in results.items()},

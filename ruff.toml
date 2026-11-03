@@ -1,0 +1,7 @@
+# Code style guide for this project (see docs/developer-guide.md).
+target-version = "py312"
+line-length = 120
+
+[lint]
+select = ["E", "F", "W", "UP", "I"]
+ignore = ["E501"]

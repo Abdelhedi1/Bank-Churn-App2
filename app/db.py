@@ -7,7 +7,7 @@ pattern: Repository, REQ-10).
 from __future__ import annotations
 
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from flask import current_app, g
@@ -106,7 +106,7 @@ DEFAULT_SETTINGS = {
 
 
 def now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
 
 
 def connect(path: str | Path) -> sqlite3.Connection:

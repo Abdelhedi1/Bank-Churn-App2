@@ -1,5 +1,6 @@
 import io
 import json
+from datetime import UTC
 
 from app import db, scoring
 from tests.conftest import PASSWORD, client_for, make_df
@@ -175,8 +176,9 @@ def test_user_management(env):
 
 def test_ingest_validates_and_accepts_reduced_files(fresh_app):
     a = client_for(fresh_app, "admin")
-    up = lambda csv: a.post("/api/data/upload", data={"file": (io.BytesIO(csv), "d.csv")},
-                            headers=a.h, content_type="multipart/form-data")
+    def up(csv):
+        return a.post("/api/data/upload", data={"file": (io.BytesIO(csv), "d.csv")},
+                      headers=a.h, content_type="multipart/form-data")
     assert up(b"a,b\n1,2\n").status_code == 400
     small = make_df(50)[["credit_score", "country", "products_number", "credit_card", "active_member",
                          "estimated_salary"]]
@@ -187,10 +189,10 @@ def test_ingest_validates_and_accepts_reduced_files(fresh_app):
 
 
 def test_weekly_schedule_logic(env):
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
     conn = db.connect(env.config["DB_PATH"])
     assert not scoring.is_due(conn)
-    assert scoring.is_due(conn, datetime.now(timezone.utc) + timedelta(days=8))
+    assert scoring.is_due(conn, datetime.now(UTC) + timedelta(days=8))
     conn.close()
 
 
